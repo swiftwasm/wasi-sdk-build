@@ -1,0 +1,52 @@
+diff --git a/Makefile b/Makefile
+index a93b10a..e75e5e9 100644
+--- a/Makefile
++++ b/Makefile
+@@ -327,7 +327,8 @@ MUSL_OMIT_HEADERS += \
+ 
+ ifeq ($(THREAD_MODEL), single)
+ # Remove headers not supported in single-threaded mode.
+-MUSL_OMIT_HEADERS += "aio.h" "pthread.h"
++# PATCHED(swiftwasm): Ship pthread header to fake Swift runtime and libcxx
++MUSL_OMIT_HEADERS += "aio.h"
+ endif
+ 
+ default: finish
+@@ -544,7 +545,8 @@ check-symbols: startup_files libc
+ 
+ 	# Check that the computed metadata matches the expected metadata.
+ 	# This ignores whitespace because on Windows the output has CRLF line endings.
+-	diff -wur "$(CURDIR)/expected/$(MULTIARCH_TRIPLE)" "$(SYSROOT_SHARE)"
++	# PATCHED(swiftwasm): Skip the check to allow additional pthread symbols
++	# diff -wur "$(CURDIR)/expected/$(MULTIARCH_TRIPLE)" "$(SYSROOT_SHARE)"
+ 
+ install: finish
+ 	mkdir -p "$(INSTALL_DIR)"
+diff --git a/libc-top-half/musl/include/pthread.h b/libc-top-half/musl/include/pthread.h
+index b11a567..0a6be7e 100644
+--- a/libc-top-half/musl/include/pthread.h
++++ b/libc-top-half/musl/include/pthread.h
+@@ -54,16 +54,16 @@ extern "C" {
+ #define PTHREAD_PROCESS_PRIVATE 0
+ #define PTHREAD_PROCESS_SHARED 1
+ 
+-
+-#if defined(__wasilibc_unmodified_upstream) || defined(_REENTRANT)
++// PATCHED(swiftwasm): pthread_key_t is defined as a struct, not a numeric type
++// #if defined(__wasilibc_unmodified_upstream) || defined(_REENTRANT)
+ #define PTHREAD_MUTEX_INITIALIZER {{{0}}}
+ #define PTHREAD_RWLOCK_INITIALIZER {{{0}}}
+ #define PTHREAD_COND_INITIALIZER {{{0}}}
+-#else
+-#define PTHREAD_MUTEX_INITIALIZER 0
+-#define PTHREAD_RWLOCK_INITIALIZER 0
+-#define PTHREAD_COND_INITIALIZER 0
+-#endif
++// #else
++// #define PTHREAD_MUTEX_INITIALIZER 0
++// #define PTHREAD_RWLOCK_INITIALIZER 0
++// #define PTHREAD_COND_INITIALIZER 0
++// #endif
+ #define PTHREAD_ONCE_INIT 0
+ 
+ 

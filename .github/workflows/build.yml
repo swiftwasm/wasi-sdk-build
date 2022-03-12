@@ -1,0 +1,25 @@
+name: Build
+
+on:
+  push: []
+
+jobs:
+  build:
+    name: Build wasi-sysroot
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - run: sudo apt install ninja-build
+      - run: make package
+      - uses: actions/upload-artifact@v1
+        with:
+          name: wasi-sysroot
+          path: wasi-sysroot.tar.gz
+      - name: Create new release
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: gh release create "$GITHUB_REF_NAME" wasi-sysroot.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
