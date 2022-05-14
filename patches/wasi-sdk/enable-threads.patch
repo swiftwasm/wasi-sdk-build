@@ -1,8 +1,8 @@
 diff --git a/Makefile b/Makefile
-index ddf6eea..ced921e 100644
+index 6602c53..bf0ddac 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -112,6 +112,7 @@ build/compiler-rt.BUILT: build/llvm.BUILT build/wasi-libc.BUILT
+@@ -114,6 +114,7 @@ build/compiler-rt.BUILT: build/llvm.BUILT build/wasi-libc.BUILT
  		-DCOMPILER_RT_HAS_FPIC_FLAG=OFF \
  		-DCOMPILER_RT_ENABLE_IOS=OFF \
  		-DCOMPILER_RT_DEFAULT_TARGET_ONLY=On \
@@ -10,10 +10,10 @@ index ddf6eea..ced921e 100644
  		-DWASI_SDK_PREFIX=$(BUILD_PREFIX) \
  		-DCMAKE_C_FLAGS="$(DEBUG_PREFIX_MAP)" \
  		-DLLVM_CONFIG_PATH=$(ROOT_DIR)/build/llvm/bin/llvm-config \
-@@ -134,8 +135,8 @@ LIBCXX_CMAKE_FLAGS = \
-     -DCMAKE_STAGING_PREFIX=$(PREFIX)/share/wasi-sysroot \
+@@ -137,8 +138,8 @@ LIBCXX_CMAKE_FLAGS = \
      -DLLVM_CONFIG_PATH=$(ROOT_DIR)/build/llvm/bin/llvm-config \
      -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+     -DCXX_SUPPORTS_CXX11=ON \
 -    -DLIBCXX_ENABLE_THREADS:BOOL=OFF \
 -    -DLIBCXX_HAS_PTHREAD_API:BOOL=OFF \
 +    -DLIBCXX_ENABLE_THREADS:BOOL=ON \
@@ -21,7 +21,7 @@ index ddf6eea..ced921e 100644
      -DLIBCXX_HAS_EXTERNAL_THREAD_API:BOOL=OFF \
      -DLIBCXX_BUILD_EXTERNAL_THREAD_LIBRARY:BOOL=OFF \
      -DLIBCXX_HAS_WIN32_THREAD_API:BOOL=OFF \
-@@ -175,8 +176,8 @@ LIBCXXABI_CMAKE_FLAGS = \
+@@ -155,8 +156,8 @@ LIBCXX_CMAKE_FLAGS = \
      -DLIBCXXABI_ENABLE_EXCEPTIONS:BOOL=OFF \
      -DLIBCXXABI_ENABLE_SHARED:BOOL=OFF \
      -DLIBCXXABI_SILENT_TERMINATE:BOOL=ON \
