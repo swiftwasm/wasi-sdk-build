@@ -1,29 +1,36 @@
 diff --git a/Makefile b/Makefile
-index a93b10a..e75e5e9 100644
+index 59598d4..e1c04c9 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -327,7 +327,8 @@ MUSL_OMIT_HEADERS += \
+@@ -436,10 +436,11 @@ MUSL_OMIT_HEADERS += \
+     "sys/sysmacros.h" \
+     "aio.h"
  
- ifeq ($(THREAD_MODEL), single)
- # Remove headers not supported in single-threaded mode.
--MUSL_OMIT_HEADERS += "aio.h" "pthread.h"
+-ifeq ($(THREAD_MODEL), single)
+-# Remove headers not supported in single-threaded mode.
+-MUSL_OMIT_HEADERS += "pthread.h"
+-endif
 +# PATCHED(swiftwasm): Ship pthread header to fake Swift runtime and libcxx
-+MUSL_OMIT_HEADERS += "aio.h"
- endif
++# ifeq ($(THREAD_MODEL), single)
++# # Remove headers not supported in single-threaded mode.
++# MUSL_OMIT_HEADERS += "pthread.h"
++# endif
  
  default: finish
-@@ -544,7 +545,8 @@ check-symbols: startup_files libc
+ 
+@@ -673,7 +674,9 @@ check-symbols: startup_files libc
  
  	# Check that the computed metadata matches the expected metadata.
  	# This ignores whitespace because on Windows the output has CRLF line endings.
--	diff -wur "$(CURDIR)/expected/$(MULTIARCH_TRIPLE)" "$(SYSROOT_SHARE)"
+-	diff -wur "$(CURDIR)/expected/$(MULTIARCH_TRIPLE)/$(THREAD_MODEL)" "$(SYSROOT_SHARE)"
 +	# PATCHED(swiftwasm): Skip the check to allow additional pthread symbols
-+	# diff -wur "$(CURDIR)/expected/$(MULTIARCH_TRIPLE)" "$(SYSROOT_SHARE)"
++	# diff -wur "$(CURDIR)/expected/$(MULTIARCH_TRIPLE)/$(THREAD_MODEL)" "$(SYSROOT_SHARE)"
++
  
  install: finish
  	mkdir -p "$(INSTALL_DIR)"
 diff --git a/libc-top-half/musl/include/pthread.h b/libc-top-half/musl/include/pthread.h
-index b11a567..0a6be7e 100644
+index 01fe5f2..bfe86ba 100644
 --- a/libc-top-half/musl/include/pthread.h
 +++ b/libc-top-half/musl/include/pthread.h
 @@ -54,16 +54,16 @@ extern "C" {
